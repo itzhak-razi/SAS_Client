@@ -1,6 +1,7 @@
-package Firstdroid.Tutorial.Gps;
-
-
+/*
+ * This class is the handle the search screen that looking for location and send it by SMS.
+ */
+package code.SAS_Client.com;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -19,47 +19,48 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-import Firstdroid.Tutorial.Gps.Locator;
 
-
-public class SASSecondActivity extends Activity //implements Runnable 
+public class SAS_Search_Activity extends Activity
 {
-	Location location = null;
-	Locator locator = null;
+	private final int SECOND_MS = 1000; //1000 ms = 1 sec
 	
-	SMSSender sender;
+	Location location = null;
+	SAS_Locator locator = null;
+	
+	SAS_SMS_Sender sender; //initial the SMS_SENDER object
 	int counter = 0; //the starting counter for the maxWaitingTime
-	int maxWaitingTime = 60; //max waiting time for obtain the location
+	int maxWaitingTime = 60; //max waiting time for obtain the location (in seconds)
 	
 	TextView tv, gettingLocationTextView, sendingSmsTextView; 
-	long startTime;
+	long startTime; //starting time when try to locate the position
 	private Handler handler = new Handler();
 	
-	SASClientData temp;
-    ImageView rotateGlobus;
-    RotateAnimation mRotateAnimation;
-    boolean foundLocation;
+	SAS_Client_Data dataToSend; //the saved phone number and message
+    
+	ImageView rotateGlobus; //the rotate Globus during looking for location
+    RotateAnimation mRotateAnimation; 
+    
+    boolean foundLocation; 
     boolean newLocation;
+    
     ImageView imageLocationStatus, imageSmsStatus;
     
-    private ProgressBar progressBar;
-    private int progressStatus = 0;
+    private ProgressBar progressBar; //the progress bar of waiting for the location
+    private int progressStatus = 0; //the progressStatus initial value is 0
         
-    
+    /* Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) 
 	{
-		Log.v("Emergency", "in ON CREATE");
 		super.onCreate(savedInstanceState);
 		
-		sender = new SMSSender();
+		sender = new SAS_SMS_Sender();
         
-        foundLocation = false;
+        foundLocation = false; //since we don't have new location, foundLocation is false
+        newLocation = false;
         
+        setContentView(R.layout.sending_values); //change the layout to sending_values
         
-        
-        setContentView(R.layout.sending_values);
-        
+        //configure the rotate globus parameters
         rotateGlobus = (ImageView) findViewById(R.id.globus);
         mRotateAnimation = new RotateAnimation(0f, 359f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         mRotateAnimation.setInterpolator(new LinearInterpolator());
@@ -67,19 +68,15 @@ public class SASSecondActivity extends Activity //implements Runnable
         mRotateAnimation.setDuration(700);
         rotateGlobus.startAnimation(mRotateAnimation);
 
-        
-    	temp = new SASClientData(this);
-    	foundLocation = false;
-    	newLocation = false;
+    	dataToSend = new SAS_Client_Data(this);
     	
-         
-        startLocator();
+        startLocator(); //Running the looking for location in the UI thread
         
-        requestGPSDialog();
-
+        requestGPSDialog(); //check the GPS HW available
                
         /*
-         * this thread is responsible on parsing the location and when find stop to waiting and send the SMS.
+         * this thread is responsible on parsing the location and when finding, 
+         * stop to waiting and send the SMS.
          */
         new Thread(new Runnable() 
         {
@@ -92,10 +89,9 @@ public class SASSecondActivity extends Activity //implements Runnable
     			imageLocationStatus = (ImageView)findViewById(R.id.imgLocation);
     			imageSmsStatus = (ImageView)findViewById(R.id.img_sms);
     			
-    			startTime = System.currentTimeMillis();
-    			progressBar = (ProgressBar) findViewById(R.id.progressbar);
+    			startTime = System.currentTimeMillis(); //save the starting time of trying to locate the location
+    			progressBar = (ProgressBar) findViewById(R.id.progressbar); //initial the progressBar
     			
-    			    			
             	while (counter < maxWaitingTime && !foundLocation) 
             	{
             		counter = waitTime(); //increase the counter by 1 second based on the waitTime() function.
@@ -104,17 +100,18 @@ public class SASSecondActivity extends Activity //implements Runnable
 	                {
 	                    public void run() 
 	                    {
-	                    	progressBar.setProgress(progressStatus);
+	                    	progressBar.setProgress(progressStatus); //start the progressBar
 	                    	
 	                    	if (location != null) //if found the location
 	                    	{
 	                    		Thread.interrupted(); //stop all the threads
-	                    		foundLocation = true; //
+	                    		foundLocation = true; //set the foundLocation variable
 	                    		gettingLocationTextView.setText("");
 	                    		mRotateAnimation.cancel(); //stop the globus animation
 	                    		mRotateAnimation.reset();
 	                    		progressBar.setVisibility(8); //hide the progress bar 
 	                    		
+	                    		//calculate the time from the latest fix 
 	                    		Long timeFromLastFix = (location.getTime() - startTime) / 1000;
 	                        	
 	                    		if (timeFromLastFix < 0) //if there is no newer location
@@ -130,10 +127,11 @@ public class SASSecondActivity extends Activity //implements Runnable
 	                    	
 	                    	if (counter >= maxWaitingTime && !foundLocation) //if the max time is over and no location found
 	                    	{
+	                    		//here we update the device screen
 	                    		gettingLocationTextView.setText("");
-	                    		progressBar.setVisibility(8);
-	                    		locationIconFalse();
-	                    		mRotateAnimation.cancel();
+	                    		progressBar.setVisibility(8); //hide the progress bar
+	                    		locationIconFalse(); //set location icon to X
+	                    		mRotateAnimation.cancel(); //stop the globus
 	                    		mRotateAnimation.reset();
 	                    	}
 	                    
@@ -150,52 +148,49 @@ public class SASSecondActivity extends Activity //implements Runnable
                     {
                     	if (location == null) //if we don't have any location at all also in memory
                 		{
-                			tv.setText("phone: " + temp.getPhone() + 
+                			tv.setText("phone: " + dataToSend.getPhone() + 
                 					"\n" + "Latitude: None" + 
                 					"\n" + "Longitude: None" +
                 					"\n" + "Provider: None" +
-                					"\n" + "Msg: " + temp.getMessage());
+                					"\n" + "Msg: " + dataToSend.getMessage());
                 			
-                			if (temp.getSendSms()) //if checked the send sms checkBox
+                			if (dataToSend.getSendSms()) //if checked the send sms checkBox
                 			{
-//                				Toast.makeText(SASSecondActivity.this, "checkBox = " + temp.getSendSms() , Toast.LENGTH_SHORT).show();
-                				sender.sendSMS(temp.getPhone(), "None", "None", "None", temp.getMessage());
+                				//send to SMS just with the message
+                				sender.sendSMS(dataToSend.getPhone(), "None", "None", "None", dataToSend.getMessage());
+                				smsIconTrue(); //set the SMS icon to V
+                			} 
                 			
-                				smsIconTrue();
-                			} //if
-                			
-                			else
+                			else //if didn't checked the send SMS checkBox
                 			{
-                				smsIconFalse();
+                				smsIconFalse(); //set the SMS icon to X
                 			}
                 			
                 		} //if
-                    	
-                    	
                     	
                     	else //if got new location during the while loop
                         {
                     		if (newLocation) //prepare the text and message and send them
 	                		{
-                    			tv.setText("phone: " + temp.getPhone() + 
+                    			tv.setText("phone: " + dataToSend.getPhone() + 
 	                					"\n" + "Latitude: " + location.getLatitude() +
 	                					"\n" + "Longitude: " + location.getLongitude() + 
 	                					"\n" + "Provider: " + location.getProvider() +
-	                					"\n" + "Msg: " + temp.getMessage());
+	                					"\n" + "Msg: " + dataToSend.getMessage());
 	                    	
-	                        	if (temp.getSendSms()) //if checked the send sms checkBox
+	                        	if (dataToSend.getSendSms()) //if checked the send SMS checkBox
 	                        	{
-//	                        		Toast.makeText(SASSecondActivity.this, "checkBox = " + temp.getSendSms() , Toast.LENGTH_SHORT).show();
-	                        		sender.sendSMS(temp.getPhone(),Double.toString(location.getLatitude()), 
-	                        				Double.toString(location.getLongitude()),location.getProvider(),temp.getMessage());
-	                        		smsIconTrue();
-	                        	} //if
+	                        		//send the message with the location
+	                        		sender.sendSMS(dataToSend.getPhone(),Double.toString(location.getLatitude()), 
+	                        				Double.toString(location.getLongitude()),location.getProvider(),dataToSend.getMessage());
+	                        		smsIconTrue(); //set the SMS icon to V
+	                        	} 
 	                        	
-	                        	else
+	                        	else //if didn't checked the send SMS checkBox 
 	                        	{
-	                        		smsIconFalse();
-	                        	} //else
-	                		}
+	                        		smsIconFalse(); //set the SMS icon to X
+	                        	} 
+	                		} //end of if (newLocation)
                         
                     	   	else //if didn't get new location during the while loop but has location in memory
 	                    	{
@@ -214,23 +209,22 @@ public class SASSecondActivity extends Activity //implements Runnable
 		                    						"\n" + "Longitude: " + location.getLongitude() +
 		                    						"\n" + "Provider: " + location.getProvider()); 
 		                    		
-		                    		tv.setText("phone: " + temp.getPhone() + 
+		                    		tv.setText("phone: " + dataToSend.getPhone() + 
 		                    					"\n" + "Latitude: None" + 
 		                    					"\n" + "Longitude: None" +
 		                    					"\n" + "Provider: None" +
-		                    					"\n" + "Msg: " + temp.getMessage() + 
+		                    					"\n" + "Msg: " + dataToSend.getMessage() + 
 		                    					"\n\n" + msg);
 		                    		
 		                    		
-		                    		if (temp.getSendSms()) //if checked the send sms checkBox
+		                    		if (dataToSend.getSendSms()) //if checked the send sms checkBox
 		                    		{
-//		                    			Toast.makeText(SASSecondActivity.this, "checkBox = " + temp.getSendSms() , Toast.LENGTH_SHORT).show();
-		                    			sender.sendSMS(temp.getPhone(), "None", "None", "None", temp.getMessage() + msg);
+		                    			sender.sendSMS(dataToSend.getPhone(), "None", "None", "None", dataToSend.getMessage() + msg);
 		                    		
 		                    			smsIconTrue();
-		                    		} //if
+		                    		} 
 		                    		
-		                    		else
+		                    		else //if didn't checked the send SMS checkBox
 		                    		{
 		                    			smsIconFalse();
 		                    		} //else
@@ -251,7 +245,7 @@ public class SASSecondActivity extends Activity //implements Runnable
 	        {
 	            try 
 	            {
-	                Thread.sleep(1000);
+	                Thread.sleep(SECOND_MS); //wait 1 second
 	            } 
 	            
 	            catch (InterruptedException e) 
@@ -259,8 +253,8 @@ public class SASSecondActivity extends Activity //implements Runnable
 	                e.printStackTrace();
 	            }
 	            
-	            ++progressStatus; //update the progress bar by 2 because progress bar need to get to 100 andmy locator  
-	            ++progressStatus; //is until 50 seconds
+	            ++progressStatus; //update the progress bar by 2 because progress bar need to get to 100    
+	            ++progressStatus; //and my locator is until 50 seconds
 	            return ++counter; 
 	        }
 	        
@@ -294,38 +288,47 @@ public class SASSecondActivity extends Activity //implements Runnable
 	    		imageSmsStatus.setBackgroundColor(android.R.color.transparent);
 	    		imageSmsStatus.setImageResource(R.drawable.red_x_75_75);
 	    	}
-
+	    	
         }).start();  //Thread Runnable
         
 	}
-    
-//        requestGPSDialog();
+//---------------------------------------------------------------------------------------
 	
+	/*
+	 * this function responsible to try obtain the location
+	 */
 	private void startLocator() {
 		final Context context = this;
-		if (this.locator != null)
-		{
-			Log.e("EmergencyActivity", "locator exists while lock is open");
-		}
-		this.locator = new Locator(context,	new EmergencyLocator());
+		this.locator = new SAS_Locator(context,	new EmergencyLocator());
 	}
-	
-	private class EmergencyLocator implements Locator.BetterLocationListener 
+//---------------------------------------------------------------------------------------
+
+	/*
+	 * initial the location variable of current class from the Locator class
+	 */
+	private class EmergencyLocator implements SAS_Locator.BetterLocationListener 
 	{
 		public void onGoodLocation(Location location) 
 		{
-			SASSecondActivity.this.location = location;
+			SAS_Search_Activity.this.location = location;
 		}
 	}
+//---------------------------------------------------------------------------------------
 	
-	
+	/*
+	 * This class check if the GPS HW is enable, if no - print alert and ask if we want to enable it.
+	 */
 	private void requestGPSDialog() {
 		final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			buildAlertMessageNoGps();
 		}
 	}
+//---------------------------------------------------------------------------------------
 
+	/*
+	 * This function represent the Alert message if GPS HW id disable
+	 */
 	private void buildAlertMessageNoGps() {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(
@@ -350,31 +353,30 @@ public class SASSecondActivity extends Activity //implements Runnable
 		final AlertDialog alert = builder.create();
 		alert.show();
 	}
+//---------------------------------------------------------------------------------------
 	
 	private void showGpsOptions() {
 		Intent gpsOptionsIntent = new Intent(
 		android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 		startActivity(gpsOptionsIntent);
 	}
+//---------------------------------------------------------------------------------------
 	
+	/*
+	 * This function handle the case back button pressed. 
+	 */
 	public void backButtonHandler(View view) 
     {
-    	Intent intentExercise = new Intent(view.getContext(), SAS_Client.class);
+		this.locator.locationManager.removeUpdates(locator.locationListener); //stop the GPS
+		finish(); //stop the activity
+		Intent intentExercise = new Intent(view.getContext(), SAS_Client.class);
     	startActivity(intentExercise);
-    	finish();
     }
-	
-	@Override
-	protected void onPause() {
-		
-		super.onPause();
-	}
-	
+//---------------------------------------------------------------------------------------
 
 }
 
 /*		
-	
 	seconds=(serverUptimeSeconds/1000)%60
 	minutes=(serverUptimeSeconds/(1000*60))%60
 	hours=(serverUptimeSeconds/(1000*60*60))%24

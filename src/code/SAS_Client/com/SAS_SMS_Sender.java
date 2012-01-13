@@ -1,8 +1,8 @@
-package Firstdroid.Tutorial.Gps;
+package code.SAS_Client.com;
 
 import android.telephony.SmsManager;
 
-public class SMSSender 
+public class SAS_SMS_Sender 
 {
 	
 	//Send string
@@ -35,7 +35,5 @@ public class SMSSender
 		SmsManager smsMgr = SmsManager.getDefault();
 		smsMgr.sendTextMessage(address, null, message, null, null);
 	}
-    
-    
 
 }
