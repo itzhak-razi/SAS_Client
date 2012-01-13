@@ -17,7 +17,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
-public class SAS_Locator 
+public class SAS_Client_Locator 
 {
 	private static final int SECOND_MS = 1000; //1000 ms = 1 sec
 	private static final int MINUTE_MS = 60 * SECOND_MS; //60 sec = 1 min
@@ -46,7 +46,7 @@ public class SAS_Locator
     /*
      * Constructor.  
      */
-	public SAS_Locator(final Context context, final BetterLocationListener blListener) 
+	public SAS_Client_Locator(final Context context, final BetterLocationListener blListener) 
     {
 		if (this.locationManager != null) 
 		{
@@ -93,7 +93,7 @@ public class SAS_Locator
 		}
 		
 		// both locations aren't null, try to find which accuracy is better 
-		if (SAS_Locator.isBetterLocation(networkLoc, satelliteLoc)) //if network is better
+		if (SAS_Client_Locator.isBetterLocation(networkLoc, satelliteLoc)) //if network is better
 		{
 			return networkLoc; 
 		} 
@@ -110,22 +110,22 @@ public class SAS_Locator
 		public void onLocationChanged(Location location) 
 		{
 			// Called when a new location is found by the network location or GPS provider.
-			if (SAS_Locator.this.location == null) 
+			if (SAS_Client_Locator.this.location == null) 
 			{
 				// never use the first location, always compare because
 				// that's the only way to find the age of the location.
-				SAS_Locator.this.location = location;
+				SAS_Client_Locator.this.location = location;
 				return;
 			}
 			
-			if (SAS_Locator.isBetterLocation(location, SAS_Locator.this.location)) 
+			if (SAS_Client_Locator.isBetterLocation(location, SAS_Client_Locator.this.location)) 
 			{
-				SAS_Locator.this.location = location;
+				SAS_Client_Locator.this.location = location;
 				
-				if (SAS_Locator.isGoodLocation(SAS_Locator.this.location)) 
+				if (SAS_Client_Locator.isGoodLocation(SAS_Client_Locator.this.location)) 
 				{
-					SAS_Locator.this.waitForGoodLocationTimer.cancel();
-					SAS_Locator.this.emitLocation();
+					SAS_Client_Locator.this.waitForGoodLocationTimer.cancel();
+					SAS_Client_Locator.this.emitLocation();
 				}
 			}
 		} //onLocationChanged
@@ -227,8 +227,8 @@ public class SAS_Locator
 //---------------------------------------------------------------------------------------
 
 	private void emitLocation() {
-		SAS_Locator.this.unregister();
-		SAS_Locator.this.blListener.onGoodLocation(SAS_Locator.this.location);
+		SAS_Client_Locator.this.unregister();
+		SAS_Client_Locator.this.blListener.onGoodLocation(SAS_Client_Locator.this.location);
 	}
 //---------------------------------------------------------------------------------------
 	
@@ -250,7 +250,7 @@ public class SAS_Locator
 		public void run() 
 		{
 			// ran out of time to get a good location, go go go
-			SAS_Locator.this.emitLocation();
+			SAS_Client_Locator.this.emitLocation();
 		}
 	}
 //---------------------------------------------------------------------------------------	

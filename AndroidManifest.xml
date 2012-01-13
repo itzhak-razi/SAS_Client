@@ -7,7 +7,7 @@
 	<application 
 	    android:icon="@drawable/sas_app_icon" 
 	    android:label="@string/app_name">
-		<activity android:name=".SAS_Client"
+		<activity android:name=".SAS_Client_Main_Activity"
 				  android:label="@string/app_name">
 
 			<intent-filter>
@@ -16,7 +16,7 @@
 			</intent-filter>
 
 		</activity>
-		 <activity android:name="code.SAS_Client.com.SAS_Search_Activity"
+		 <activity android:name=".SAS_Client_Search_Activity"
                   android:label="@string/app_name"
                   android:launchMode="singleInstance"
                   >

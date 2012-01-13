@@ -20,14 +20,14 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SAS_Search_Activity extends Activity
+public class SAS_Client_Search_Activity extends Activity
 {
 	private final int SECOND_MS = 1000; //1000 ms = 1 sec
 	
 	Location location = null;
-	SAS_Locator locator = null;
+	SAS_Client_Locator locator = null;
 	
-	SAS_SMS_Sender sender; //initial the SMS_SENDER object
+	SAS_Client_SMS_Sender sender; //initial the SMS_SENDER object
 	int counter = 0; //the starting counter for the maxWaitingTime
 	int maxWaitingTime = 60; //max waiting time for obtain the location (in seconds)
 	
@@ -53,7 +53,7 @@ public class SAS_Search_Activity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		
-		sender = new SAS_SMS_Sender();
+		sender = new SAS_Client_SMS_Sender();
         
         foundLocation = false; //since we don't have new location, foundLocation is false
         newLocation = false;
@@ -299,18 +299,18 @@ public class SAS_Search_Activity extends Activity
 	 */
 	private void startLocator() {
 		final Context context = this;
-		this.locator = new SAS_Locator(context,	new EmergencyLocator());
+		this.locator = new SAS_Client_Locator(context,	new EmergencyLocator());
 	}
 //---------------------------------------------------------------------------------------
 
 	/*
 	 * initial the location variable of current class from the Locator class
 	 */
-	private class EmergencyLocator implements SAS_Locator.BetterLocationListener 
+	private class EmergencyLocator implements SAS_Client_Locator.BetterLocationListener 
 	{
 		public void onGoodLocation(Location location) 
 		{
-			SAS_Search_Activity.this.location = location;
+			SAS_Client_Search_Activity.this.location = location;
 		}
 	}
 //---------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ public class SAS_Search_Activity extends Activity
     {
 		this.locator.locationManager.removeUpdates(locator.locationListener); //stop the GPS
 		finish(); //stop the activity
-		Intent intentExercise = new Intent(view.getContext(), SAS_Client.class);
+		Intent intentExercise = new Intent(view.getContext(), SAS_Client_Main_Activity.class);
     	startActivity(intentExercise);
     }
 //---------------------------------------------------------------------------------------

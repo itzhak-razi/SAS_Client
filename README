@@ -1,0 +1,8 @@
+This Project represent the SAS Client.
+1. The project obtain location by GPS (if available) or Network.
+2. Max time to obtain location is 1 Min, but if location found earlier, it will stop listening.
+3. The location can send by SMS with message by check the specific check box.
+4. If not found new location, the latest found location will send.
+5. Anyway, the message represent on the screen.
+6. During the obtaining location, there is button that give an option to stop the obtaining and move back
+   to main screen. 

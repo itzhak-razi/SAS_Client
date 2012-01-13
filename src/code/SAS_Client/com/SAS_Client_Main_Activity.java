@@ -14,7 +14,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 
-public class SAS_Client extends Activity
+public class SAS_Client_Main_Activity extends Activity
 {
 //	private final static int STATE_X_OR_V = 0;
 //	static String locationString = "";
@@ -38,7 +38,7 @@ public class SAS_Client extends Activity
 		{
 			public void onClick(View v) 
 			{
-				SAS_Client.this.helpButtonPressed(); //if pressed, call the helpButtonPressed function
+				SAS_Client_Main_Activity.this.helpButtonPressed(); //if pressed, call the helpButtonPressed function
 			}
 		});
 	}
@@ -108,8 +108,8 @@ public class SAS_Client extends Activity
 		}
 		
 		//here we are going to change the activity to SAS_Search_Activity
-		Intent myIntent = new Intent(SAS_Client.this, SAS_Search_Activity.class);
-		SAS_Client.this.startActivity(myIntent);
+		Intent myIntent = new Intent(SAS_Client_Main_Activity.this, SAS_Client_Search_Activity.class);
+		SAS_Client_Main_Activity.this.startActivity(myIntent);
 	}
 //---------------------------------------------------------------------------------------
 }

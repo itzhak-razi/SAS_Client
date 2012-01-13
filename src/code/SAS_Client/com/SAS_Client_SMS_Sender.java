@@ -2,7 +2,7 @@ package code.SAS_Client.com;
 
 import android.telephony.SmsManager;
 
-public class SAS_SMS_Sender 
+public class SAS_Client_SMS_Sender 
 {
 	
 	//Send string
