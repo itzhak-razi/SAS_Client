@@ -176,6 +176,7 @@ public class SAS_Client_Search_Activity extends Activity
 	                					"\n" + "Latitude: " + location.getLatitude() +
 	                					"\n" + "Longitude: " + location.getLongitude() + 
 	                					"\n" + "Provider: " + location.getProvider() +
+	                					"\n" + "Accuracy: " + location.getAccuracy() +
 	                					"\n" + "Msg: " + dataToSend.getMessage());
 	                    	
 	                        	if (dataToSend.getSendSms()) //if checked the send SMS checkBox
@@ -207,7 +208,8 @@ public class SAS_Client_Search_Activity extends Activity
 		                    						"\n" + "The latest was before:" + "\n" + serverUptimeText +
 		                    						"\n" + "Latitude: " + location.getLatitude() +
 		                    						"\n" + "Longitude: " + location.getLongitude() +
-		                    						"\n" + "Provider: " + location.getProvider()); 
+		                    						"\n" + "Provider: " + location.getProvider() +
+		                        					"\n" + "Accuracy: " + location.getAccuracy()); 
 		                    		
 		                    		tv.setText("phone: " + dataToSend.getPhone() + 
 		                    					"\n" + "Latitude: None" + 
@@ -367,7 +369,9 @@ public class SAS_Client_Search_Activity extends Activity
 	 */
 	public void backButtonHandler(View view) 
     {
-		this.locator.locationManager.removeUpdates(locator.locationListener); //stop the GPS
+		if (this.locator.locationManager != null)
+			this.locator.locationManager.removeUpdates(locator.locationListener); //stop the GPS
+		
 		finish(); //stop the activity
 		Intent intentExercise = new Intent(view.getContext(), SAS_Client_Main_Activity.class);
     	startActivity(intentExercise);
