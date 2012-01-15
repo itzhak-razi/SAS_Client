@@ -2,4 +2,14 @@
 <resources>
     <string name="hello">Press on the button in case of emergency</string>
     <string name="app_name">SAS_Client</string>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="blue">#0000FF</color>
+    <color name="red">#FF0000</color> 
+    <color name="green">#2e8B57</color>
+    <color name="brown">#8B4513</color>    
+    <color name="yellow">#FFFF00</color>
+    <color name="grey">#BEBEBE</color>    
+    <color name="cyan">#00FFFF</color>
+    <color name="orange">#FFA500</color>    
 </resources>

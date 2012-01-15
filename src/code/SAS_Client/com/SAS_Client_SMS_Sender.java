@@ -29,6 +29,20 @@ public class SAS_Client_SMS_Sender
 		catch(Exception e )
 		{}
 	}
+	
+	public void sendSMS(String destination,String latitude,String longitude, String provider, String accuracy,String body)
+	{
+		try
+		{
+			sendSmsMessage(destination, "SAS1" + 
+						"\n" + latitude + 
+						"\n" + longitude + 
+						"\n" + provider +
+						"\n" + accuracy + 
+						"\n" + body);
+		}
+		catch (Exception e){}
+	}
 	  
     private void sendSmsMessage(String address,String message) throws Exception
 	{

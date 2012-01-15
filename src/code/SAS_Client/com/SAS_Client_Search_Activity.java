@@ -182,8 +182,12 @@ public class SAS_Client_Search_Activity extends Activity
 	                        	if (dataToSend.getSendSms()) //if checked the send SMS checkBox
 	                        	{
 	                        		//send the message with the location
-	                        		sender.sendSMS(dataToSend.getPhone(),Double.toString(location.getLatitude()), 
-	                        				Double.toString(location.getLongitude()),location.getProvider(),dataToSend.getMessage());
+	                        		sender.sendSMS(dataToSend.getPhone(),
+	                        					   Double.toString(location.getLatitude()), 
+	                        					   Double.toString(location.getLongitude()),
+	                        					   location.getProvider(),
+	                        					   Double.toString(location.getAccuracy()),
+	                        					   dataToSend.getMessage());
 	                        		smsIconTrue(); //set the SMS icon to V
 	                        	} 
 	                        	
