@@ -29,9 +29,9 @@
             </fileset>
         </copy>
         <copy includeemptydirs="false" todir="bin/classes">
-            <fileset dir="gen">
+            <!--fileset dir="gen">
                 <exclude name="**/*.java"/>
-            </fileset>
+            </fileset-->
         </copy>
     </target>
     <target name="clean">
