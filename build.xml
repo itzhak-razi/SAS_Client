@@ -28,11 +28,11 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
-        <copy includeemptydirs="false" todir="bin/classes">
-            <!--fileset dir="gen">
+        <!--copy includeemptydirs="false" todir="bin/classes">
+            <fileset dir="gen">
                 <exclude name="**/*.java"/>
-            </fileset-->
-        </copy>
+            </fileset>
+        </copy-->
     </target>
     <target name="clean">
         <delete dir="bin/classes"/>
